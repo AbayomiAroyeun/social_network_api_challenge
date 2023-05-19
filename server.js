@@ -1,30 +1,29 @@
 const express = require('express');
-const { MongoClient, ObjectId } = require('mongodb');
+const mongoose = require('mongoose');
+const routes = require('./routes');
 
-//create model
-const connectURL = 'mongodb://localhost:27017';
-const client = new MongoClient(connectURL);
-let db;
-const PORT = 3000;
 const app = express();
-app.use(express.json());
-app.get('/cars', async (req, res) => {
-  const cars = await db.collection('carsCollection')
-    .find({})
-    .toArray();
-  res.send(cars);
-});
-app.post('/cars', async (req, res) => {
-  const turtleResult = await db.collection('CarsCollection')
-    .insertOne(req.body);
-  res.send(turtleResult);
-});
-client.connect()
-  .then(() => {
-    db = client.db('myExampleDB');
-    app.listen(PORT, () => console.log('Started on port %s', PORT));
-  });
+const PORT = 3000;
 
+app.use(express.json());
+
+
+mongoose.connect('mongodb://27017/mydatabase', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+  useFindAndModify: false
+})
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('Failed to connect to MongoDB:', err));
+
+
+app.use('/api', routes);
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
+});
 
 
 
